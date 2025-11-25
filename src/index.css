@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 简单的全局样式 */
+html, body, #root {
+  height: 100%;
+}
+body {
+  @apply bg-[#FEF7FF] text-[#1D1B20];
+}
+
+/* 自定义动画（用于组件中的 animate-fade-in） */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.28s ease both;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
