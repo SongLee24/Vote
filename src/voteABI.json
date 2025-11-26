@@ -1,0 +1,189 @@
+[
+    {
+      "type": "constructor",
+      "inputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "Voted",
+      "type": "event",
+      "inputs": [
+        {
+          "name": "voter",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "candidateId",
+          "type": "uint16",
+          "indexed": true,
+          "internalType": "uint16"
+        },
+        {
+          "name": "delegator",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "name": "addCandidate",
+      "type": "function",
+      "inputs": [
+        {
+          "name": "_names",
+          "type": "string[]",
+          "internalType": "string[]"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "allocateVotes",
+      "type": "function",
+      "inputs": [
+        {
+          "name": "addressList",
+          "type": "address[]",
+          "internalType": "address[]"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "delegateVote",
+      "type": "function",
+      "inputs": [
+        {
+          "name": "to",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "targetId",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "getAllCandidates",
+      "type": "function",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple[]",
+          "components": [
+            {
+              "name": "id",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "voteCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ],
+          "internalType": "struct Vote.Candidate[]"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "name": "getMyInfo",
+      "type": "function",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "components": [
+            {
+              "name": "hasRightToVote",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "hasVoted",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "delegateTo",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "personalTargetId",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "delegations",
+              "type": "tuple[3]",
+              "components": [
+                {
+                  "name": "delegator",
+                  "type": "address",
+                  "internalType": "address"
+                },
+                {
+                  "name": "targetId",
+                  "type": "uint16",
+                  "internalType": "uint16"
+                },
+                {
+                  "name": "hasVoted",
+                  "type": "bool",
+                  "internalType": "bool"
+                }
+              ],
+              "internalType": "struct Vote.ReceivedDelegation[3]"
+            }
+          ],
+          "internalType": "struct Vote.Voter"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "name": "host",
+      "type": "function",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "name": "vote",
+      "type": "function",
+      "inputs": [
+        {
+          "name": "candidateId",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    }
+]
