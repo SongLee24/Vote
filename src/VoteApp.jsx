@@ -3,6 +3,7 @@ import { INITIAL_CANDIDATES, MOCK_USER, STYLES, Navigation } from './shared';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import AdminPanel from './components/AdminPanel';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function VoteApp() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -50,6 +51,10 @@ export default function VoteApp() {
   };
 
   return (
+    <div>
+      <div style={{display: 'flex', justifyContent: 'flex-end', padding: 10, backgroundColor: '#F0F8FF'}}>
+      <ConnectButton />
+    </div>
     <div className={STYLES.container}>
       {/* 侧边导航 */}
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -66,6 +71,7 @@ export default function VoteApp() {
           <AdminPanel onAllocate={handleAllocate} />
         )}
       </main>
+    </div>
     </div>
   );
 }
