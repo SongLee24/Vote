@@ -55,7 +55,7 @@ export default function Profile({ user, candidates, onDelegate, isConnected }) {
           <div className="flex justify-between items-center py-2">
             <span className="text-[#49454F]">委托状态</span>
             {user.delegateTo !== "0x0000000000000000000000000000000000000000" ? 
-              <span className="text-[#6750A4] font-medium text-sm truncate max-w-[150px]">To: {user.delegateTo.slice(0,6)}...</span> : 
+              <span className="text-[#6750A4] font-medium text-sm truncate max-w-[150px]">To: {user.delegateTo}</span> : 
               <span className={STYLES.chipNeutral}>未委托</span>
             }
           </div>

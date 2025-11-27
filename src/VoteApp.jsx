@@ -58,7 +58,6 @@ export default function VoteApp() {
     functionName: 'getMyInfo',
     account: address,
   });
-  console.log('fetched user from contract:', address, user);
 
   // 获取主持人地址
   const { data: host } = useReadContract({
@@ -72,41 +71,49 @@ export default function VoteApp() {
   const userSafe = user ? { ...user, address: address } : DEFAULT_USER;
   const candidatesSafe = candidates ?? [];
   const hostSafe = host ?? "";
-  console.log('user data from contract:', userSafe);
 
-  // 模拟投票动作
-  const handleVote = (candidateId) => {
-    // 1. 更新候选人票数
-    const newCandidates = candidates.map(c => {
-      if (c.id === candidateId) return { ...c, voteCount: c.voteCount + 1 };
-      return c;
-    });
+  // 投票
+  const handleVote = async (candidateId) => {
+    if (!isConnected) {
+      alert('请先连接钱包');
+      return;
+    }
 
-    // 模拟帮代理人投票的逻辑
-    user.delegations.forEach(d => {
-      if (d.delegator !== "0x0000000000000000000000000000000000000000" && !d.hasVoted) {
-        const target = newCandidates.find(c => c.id === d.targetId);
-        if (target) target.voteCount += 1;
-      }
-    });
+    if (!voteContract) {
+      alert('合约未初始化，请重新连接钱包');
+      return;
+    }
 
-    setCandidates(newCandidates);
-
-    // 2. 更新用户状态
-    setUser({ 
-      ...user, 
-      hasVoted: true, 
-      personalTargetId: candidateId,
-      delegations: user.delegations.map(d => ({...d, hasVoted: true}))
-    });
-
-    alert(`投票成功！您投给了 ID: ${candidateId}`);
+    try {
+      const tx = await voteContract.vote(candidateId);
+      await tx.wait();
+      alert(`投票成功！您投给了 ID: ${candidateId}`);
+    } catch (err) {
+      console.error(err);
+      alert('调用合约失败：' + (err?.message || err));
+    }
   };
 
-  // 模拟委托动作
-  const handleDelegate = (to, targetId) => {
-    setUser({ ...user, delegateTo: to });
-    alert(`委托成功！已委托给 ${to}，意向候选人 ID: ${targetId}`);
+  // 委托投票
+  const handleDelegate = async (to, targetId) => {
+    if (!isConnected) {
+      alert('请先连接钱包');
+      return;
+    }
+
+    if (!voteContract) {
+      alert('合约未初始化，请重新连接钱包');
+      return;
+    }
+
+    try {
+      const tx = await voteContract.delegateVote(to, targetId);
+      await tx.wait();
+      alert(`委托成功！已委托给 ${to}，意向候选人 ID: ${targetId}`);
+    } catch (err) {
+      console.error(err);
+      alert('调用合约失败：' + (err?.message || err));
+    }
   };
 
   // 分发票权 (Admin)
@@ -182,7 +189,7 @@ export default function VoteApp() {
           <Profile user={userSafe} candidates={candidatesSafe} onDelegate={handleDelegate} isConnected={isConnected}/>
         )}
         {activeTab === 'admin' && (
-          <AdminPanel onAllocate={handleAllocate} onAddCandidates={handleAddCandidates} host={hostSafe} isConnected={isConnected}/>
+          <AdminPanel user={userSafe} onAllocate={handleAllocate} onAddCandidates={handleAddCandidates} host={hostSafe} isConnected={isConnected}/>
         )}
       </main>
     </div>

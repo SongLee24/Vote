@@ -37,6 +37,14 @@ export default function Dashboard({ candidates, user, onVote, isConnected }) {
             <p className="text-sm opacity-90">感谢您的参与。</p>
           </div>
         </div>
+      ) : user.delegateTo !== "0x0000000000000000000000000000000000000000" ? (
+        <div className="bg-[#E6F4EA] text-[#0D3624] p-4 rounded-xl mb-6 flex items-start gap-3">
+          <CheckCircle className="shrink-0 mt-0.5" size={20} />
+          <div>
+            <p className="font-medium">您已将投票权委托给他人</p>
+            <p className="text-sm opacity-90">您无法进行投票操作。</p>
+          </div>
+        </div>
       ) : null}
 
       <div className="grid grid-cols-1 gap-4">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Users, ShieldCheck } from 'lucide-react';
 import { STYLES } from '../shared';
 
-export default function AdminPanel({ onAllocate, onAddCandidates, host, isConnected }) {
+export default function AdminPanel({ user, onAllocate, onAddCandidates, host, isConnected }) {
   // State for Allocate Votes
   const [addresses, setAddresses] = useState("");
   // State for Add Candidate (使用 textarea 支持批量输入)
@@ -52,7 +52,8 @@ export default function AdminPanel({ onAllocate, onAddCandidates, host, isConnec
       {/* 批量新增候选人卡片 */}
       <div className={STYLES.card}>
         <h2 className={STYLES.cardTitle}><Users size={20} className="text-[#6750A4]"/> 批量新增候选人</h2>
-        <form onSubmit={handleAddCandidatesSubmit} className="space-y-4">
+        { user.address.toLowerCase() === host.toLowerCase() ? (
+          <form onSubmit={handleAddCandidatesSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-[#49454F] mb-1 ml-1">候选人姓名列表 (每行一个)</label>
             <textarea 
@@ -69,27 +70,39 @@ export default function AdminPanel({ onAllocate, onAddCandidates, host, isConnec
               批量添加候选人
             </button>
           </div>
-        </form>
+          </form>) : (
+          <div className="bg-[#F3EFF4] p-4 rounded-lg text-center text-[#49454F] text-sm">
+          只有主持人有权限新增候选人。
+          </div>
+        )}
       </div>
 
       {/* 批量授权卡片 (分发票权) */}
       <div className={STYLES.card}>
         <h2 className={STYLES.cardTitle}><ShieldCheck size={20} className="text-[#6750A4]"/> 批量授权 (分发票权)</h2>
-        <div className="mb-6">
-          <label className="block text-xs font-medium text-[#49454F] mb-2 ml-1">账户地址列表 (每行一个)</label>
-          <textarea 
-            className={`${STYLES.input} font-mono text-sm h-48 resize-none`}
-            placeholder="0x123...\n0x456...\n0x789..."
-            value={addresses}
-            onChange={(e) => setAddresses(e.target.value)}
-          ></textarea>
-          <p className="text-xs text-[#49454F] mt-2 ml-1">* 系统会自动忽略已拥有票权的地址。</p>
-        </div>
-        <div className="flex justify-end">
-          <button onClick={handleAllocateSubmit} className={STYLES.primaryBtn}>
-            执行分发
-          </button>
-        </div>
+        { user.address.toLowerCase() === host.toLowerCase() ? (
+          <div>
+            <div className="mb-6">
+              <label className="block text-xs font-medium text-[#49454F] mb-2 ml-1">账户地址列表 (每行一个)</label>
+              <textarea 
+                className={`${STYLES.input} font-mono text-sm h-48 resize-none`}
+                placeholder="0x123...\n0x456...\n0x789..."
+                value={addresses}
+                onChange={(e) => setAddresses(e.target.value)}
+              ></textarea>
+              <p className="text-xs text-[#49454F] mt-2 ml-1">* 系统会自动忽略已拥有票权的地址。</p>
+            </div>
+            <div className="flex justify-end">
+              <button onClick={handleAllocateSubmit} className={STYLES.primaryBtn}>
+                执行分发
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-[#F3EFF4] p-4 rounded-lg text-center text-[#49454F] text-sm">
+          只有主持人有权限分发投票权。
+          </div>
+        )}
       </div>
     </div>
   );
