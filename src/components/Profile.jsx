@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Users, Send, Info, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, UserCircle, Send, Info, CheckCircle, AlertCircle } from 'lucide-react';
 import { STYLES } from '../shared';
 
-export default function Profile({ user, candidates, onDelegate }) {
+export default function Profile({ user, candidates, onDelegate, isConnected }) {
   const [delegateAddr, setDelegateAddr] = useState("");
   const [delegateTargetId, setDelegateTargetId] = useState("");
 
@@ -13,6 +13,16 @@ export default function Profile({ user, candidates, onDelegate }) {
     setDelegateTargetId("");
   };
 
+  if (!isConnected) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] text-center p-4">
+        <UserCircle size={48} className="text-[#6750A4] mb-4"/>
+        <h2 className="text-2xl font-medium mb-2">连接钱包以查看个人信息</h2>
+        <p className="text-[#49454F]">请连接钱包以管理您的投票权益和委托设置。</p>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in">
       <header className="mb-8">
@@ -22,8 +32,12 @@ export default function Profile({ user, candidates, onDelegate }) {
 
       {/* 权益卡片 */}
       <div className={STYLES.card}>
-        <h2 className={STYLES.cardTitle}><Info size={20} className="text-[#6750A4]"/> 我的权益状态</h2>
+        <h2 className={STYLES.cardTitle}><Info size={20} className="text-[#6750A4]"/> 我的状态</h2>
         <div className="space-y-4">
+          <div className="flex justify-between items-center py-2 border-b border-[#E7E0EC]">
+            <span className="text-[#49454F]">账户地址</span>
+            <span className="text-[#49454F]">{user.address}</span>
+          </div>
           <div className="flex justify-between items-center py-2 border-b border-[#E7E0EC]">
             <span className="text-[#49454F]">投票资格</span>
             {user.hasRightToVote ? 

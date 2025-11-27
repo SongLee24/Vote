@@ -1,8 +1,18 @@
 import React from 'react';
-import { AlertCircle, CheckCircle, Vote } from 'lucide-react';
+import { Wallet, AlertCircle, CheckCircle, Vote } from 'lucide-react';
 import { STYLES } from '../shared';
 
-export default function Dashboard({ candidates, user, onVote }) {
+export default function Dashboard({ candidates, user, onVote, isConnected }) {
+  if (!isConnected) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] text-center p-4">
+        <Wallet size={48} className="text-[#6750A4] mb-4"/>
+        <h2 className="text-2xl font-medium mb-2">请连接您的钱包</h2>
+        <p className="text-[#49454F]">连接钱包后，您将能够查看投票资格并进行投票操作。</p>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in">
       <header className="mb-8">

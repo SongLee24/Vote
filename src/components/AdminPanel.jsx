@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Users, ShieldCheck } from 'lucide-react';
 import { STYLES } from '../shared';
 
-export default function AdminPanel({ onAllocate }) {
+export default function AdminPanel({ onAllocate, isConnected }) {
   // State for Allocate Votes
   const [addresses, setAddresses] = useState("");
   // State for Add Candidate (使用 textarea 支持批量输入)
@@ -27,6 +27,16 @@ export default function AdminPanel({ onAllocate }) {
       setCandidateNames("");
     }
   };
+
+  if (!isConnected) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] text-center p-4">
+        <ShieldCheck size={48} className="text-[#6750A4] mb-4"/>
+        <h2 className="text-2xl font-medium mb-2">连接钱包以访问管理功能</h2>
+        <p className="text-[#49454F]">仅主持人账户连接后可进行管理操作。</p>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">

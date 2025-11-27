@@ -1,23 +1,13 @@
 import React from 'react';
 import { LayoutDashboard, UserCircle, ShieldCheck } from 'lucide-react';
 
-export const INITIAL_CANDIDATES = [
-  { id: 1, name: "Alice", voteCount: 12 },
-  { id: 2, name: "Bob", voteCount: 8 },
-  { id: 3, name: "Charlie", voteCount: 5 },
-];
-
-export const MOCK_USER = {
-  address: "0x123...abc",
-  hasRightToVote: true,
+export const DEFAULT_USER = {
+  address: "",
+  hasRightToVote: false,
   hasVoted: false,
   delegateTo: "0x0000000000000000000000000000000000000000",
   personalTargetId: 0,
-  delegations: [
-    { delegator: "0x456...def", targetId: 1, hasVoted: false },
-    { delegator: "0x000...000", targetId: 0, hasVoted: false },
-    { delegator: "0x000...000", targetId: 0, hasVoted: false }
-  ]
+  delegations: []
 };
 
 // 主要改动：把紫色系替换为蓝色系（主色：#1E90FF，深色：#1877CC，浅色：#63B3FF，浅背景：#E6F3FF）

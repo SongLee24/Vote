@@ -1,14 +1,36 @@
 import React, { useState } from 'react';
-import { INITIAL_CANDIDATES, MOCK_USER, STYLES, Navigation } from './shared';
+import { DEFAULT_USER, STYLES, Navigation } from './shared';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import AdminPanel from './components/AdminPanel';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import voteABI from './voteABI.json';
+
+// 使用wagmi的hook
+import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 
 export default function VoteApp() {
+  const voteContractAddress = '0x1e7f24a2CbA8122051b66458b8459FD9BDD931A3';
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [candidates, setCandidates] = useState(INITIAL_CANDIDATES);
-  const [user, setUser] = useState(MOCK_USER);
+  const { address, isConnected } = useAccount();
+
+  // 获取候选人列表，获取不到默认为空数组
+  const { data: candidates } = useReadContract({
+    address: voteContractAddress,
+    abi: JSON.parse(JSON.stringify(voteABI)),
+    functionName: 'getAllCandidates',
+  }); 
+
+  // 获取登陆用户信息
+  const { data: user } = useReadContract({
+    address: voteContractAddress,
+    abi: JSON.parse(JSON.stringify(voteABI)),
+    functionName: 'getMyInfo',
+  })
+
+  // 安全 fallback，直到链上返回数据前使用 DEFAULT_USER 和空候选人数组
+  const userSafe = user ? { ...user, address: address } : DEFAULT_USER;
+  const candidatesSafe = candidates ?? [];
 
   // 模拟投票动作
   const handleVote = (candidateId) => {
@@ -62,13 +84,13 @@ export default function VoteApp() {
       {/* 主内容区 */}
       <main className={STYLES.pageContainer}>
         {activeTab === 'dashboard' && (
-          <Dashboard candidates={candidates} user={user} onVote={handleVote} />
+          <Dashboard candidates={candidatesSafe} user={userSafe} onVote={handleVote} isConnected={isConnected}/>
         )}
         {activeTab === 'profile' && (
-          <Profile user={user} candidates={candidates} onDelegate={handleDelegate} />
+          <Profile user={userSafe} candidates={candidatesSafe} onDelegate={handleDelegate} isConnected={isConnected}/>
         )}
         {activeTab === 'admin' && (
-          <AdminPanel onAllocate={handleAllocate} />
+          <AdminPanel onAllocate={handleAllocate} isConnected={isConnected}/>
         )}
       </main>
     </div>
