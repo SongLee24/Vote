@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DEFAULT_USER, STYLES, Navigation } from './shared';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
@@ -11,16 +11,44 @@ import { useAccount, useReadContract, useWalletClient } from 'wagmi';
 import { ethers } from 'ethers';
 
 export default function VoteApp() {
-  const voteContractAddress = '0x1e7f24a2CbA8122051b66458b8459FD9BDD931A3';
+  const voteContractAddress = '0x53330bb484a7E3BceEb5a70c2543A1511240c2cd';
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [voteContract, setVoteContract] = useState(null);
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
+
+  // 初始化合约实例
+  useEffect(() => {
+    const initContract = async () => {
+      if (!walletClient || !isConnected) {
+        setVoteContract(null);
+        return;
+      }
+
+      try {
+        const provider = new ethers.BrowserProvider(walletClient);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          voteContractAddress,
+          voteABI,
+          signer
+        );
+        setVoteContract(contract);
+      } catch (err) {
+        console.error('初始化合约失败：', err);
+        setVoteContract(null);
+      }
+    };
+
+    initContract();
+  }, [walletClient, isConnected]);
 
   // 获取候选人列表，获取不到默认为空数组
   const { data: candidates } = useReadContract({
     address: voteContractAddress,
     abi: JSON.parse(JSON.stringify(voteABI)),
     functionName: 'getAllCandidates',
+    account: address,
   }); 
 
   // 获取登陆用户信息
@@ -28,19 +56,23 @@ export default function VoteApp() {
     address: voteContractAddress,
     abi: JSON.parse(JSON.stringify(voteABI)),
     functionName: 'getMyInfo',
-  })
+    account: address,
+  });
+  console.log('fetched user from contract:', address, user);
 
   // 获取主持人地址
   const { data: host } = useReadContract({
     address: voteContractAddress,
     abi: JSON.parse(JSON.stringify(voteABI)),
     functionName: 'host',
+    account: address,
   });
 
   // 安全 fallback，直到链上返回数据前使用 DEFAULT_USER 和空候选人数组
   const userSafe = user ? { ...user, address: address } : DEFAULT_USER;
   const candidatesSafe = candidates ?? [];
   const hostSafe = host ?? "";
+  console.log('user data from contract:', userSafe);
 
   // 模拟投票动作
   const handleVote = (candidateId) => {
@@ -77,9 +109,35 @@ export default function VoteApp() {
     alert(`委托成功！已委托给 ${to}，意向候选人 ID: ${targetId}`);
   };
 
-  // 模拟分发票权 (Admin)
-  const handleAllocate = (addressList) => {
-    console.log("Allocating votes to:", addressList);
+  // 分发票权 (Admin)
+  const handleAllocate = async (addressList) => {
+    if (!addressList || addressList.length === 0) return;
+
+    for (const addr of addressList) {
+      if (!ethers.isAddress(addr)) {
+        alert(`无效地址：${addr}`);
+        return;
+      }
+    }
+
+    if (!isConnected) {
+      alert('请先连接钱包');
+      return;
+    }
+
+    if (!voteContract) {
+      alert('合约未初始化，请重新连接钱包');
+      return;
+    }
+
+    try {
+      const tx = await voteContract.allocateVotes(addressList);
+      await tx.wait();
+      alert('批量授权成功');
+    } catch (err) {
+      console.error(err);
+      alert('调用合约失败：' + (err?.message || err));
+    }
   };
 
   // 批量新增候选人 (Admin)
@@ -91,21 +149,13 @@ export default function VoteApp() {
       return;
     }
 
-    if (!walletClient) {
-      alert('无法获取钱包客户端，请重新连接钱包');
+    if (!voteContract) {
+      alert('合约未初始化，请重新连接钱包');
       return;
     }
 
     try {
-      const provider = new ethers.BrowserProvider(walletClient);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(
-        voteContractAddress,
-        voteABI,
-        signer
-      );
-      
-      const tx = await contract.addCandidate(nameList);
+      const tx = await voteContract.addCandidate(nameList);
       await tx.wait();
       alert('新增候选人成功');
     } catch (err) {

@@ -48,14 +48,13 @@ export default function Dashboard({ candidates, user, onVote, isConnected }) {
               </div>
               <div>
                 <h3 className="text-lg font-medium text-[#1D1B20]">{candidate.name}</h3>
-                <p className="text-[#49454F] text-sm">ID: #{candidate.id}</p>
+                <p className="text-[#49454F] text-sm">ID: {candidate.id}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
               <div className="text-right">
-                <span className="block text-2xl font-normal text-[#1D1B20]">{candidate.voteCount}</span>
-                <span className="text-xs text-[#49454F] uppercase tracking-wider">票数</span>
+                <span className="text-xs text-[#49454F] uppercase tracking-wider">票数：{Number(candidate.voteCount)}</span>
               </div>
               
               <button 
