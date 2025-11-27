@@ -7,12 +7,14 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import voteABI from './voteABI.json';
 
 // 使用wagmi的hook
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useReadContract, useWalletClient } from 'wagmi';
+import { ethers } from 'ethers';
 
 export default function VoteApp() {
   const voteContractAddress = '0x1e7f24a2CbA8122051b66458b8459FD9BDD931A3';
   const [activeTab, setActiveTab] = useState('dashboard');
   const { address, isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
 
   // 获取候选人列表，获取不到默认为空数组
   const { data: candidates } = useReadContract({
@@ -28,9 +30,17 @@ export default function VoteApp() {
     functionName: 'getMyInfo',
   })
 
+  // 获取主持人地址
+  const { data: host } = useReadContract({
+    address: voteContractAddress,
+    abi: JSON.parse(JSON.stringify(voteABI)),
+    functionName: 'host',
+  });
+
   // 安全 fallback，直到链上返回数据前使用 DEFAULT_USER 和空候选人数组
   const userSafe = user ? { ...user, address: address } : DEFAULT_USER;
   const candidatesSafe = candidates ?? [];
+  const hostSafe = host ?? "";
 
   // 模拟投票动作
   const handleVote = (candidateId) => {
@@ -72,6 +82,38 @@ export default function VoteApp() {
     console.log("Allocating votes to:", addressList);
   };
 
+  // 批量新增候选人 (Admin)
+  const handleAddCandidates = async (nameList) => {
+    if (!nameList || nameList.length === 0) return;
+
+    if (!isConnected) {
+      alert('请先连接钱包');
+      return;
+    }
+
+    if (!walletClient) {
+      alert('无法获取钱包客户端，请重新连接钱包');
+      return;
+    }
+
+    try {
+      const provider = new ethers.BrowserProvider(walletClient);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(
+        voteContractAddress,
+        voteABI,
+        signer
+      );
+      
+      const tx = await contract.addCandidate(nameList);
+      await tx.wait();
+      alert('新增候选人成功');
+    } catch (err) {
+      console.error(err);
+      alert('调用合约失败：' + (err?.message || err));
+    }
+  };
+
   return (
     <div>
       <div style={{display: 'flex', justifyContent: 'flex-end', padding: 10, backgroundColor: '#F0F8FF'}}>
@@ -90,7 +132,7 @@ export default function VoteApp() {
           <Profile user={userSafe} candidates={candidatesSafe} onDelegate={handleDelegate} isConnected={isConnected}/>
         )}
         {activeTab === 'admin' && (
-          <AdminPanel onAllocate={handleAllocate} isConnected={isConnected}/>
+          <AdminPanel onAllocate={handleAllocate} onAddCandidates={handleAddCandidates} host={hostSafe} isConnected={isConnected}/>
         )}
       </main>
     </div>

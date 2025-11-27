@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Users, ShieldCheck } from 'lucide-react';
 import { STYLES } from '../shared';
 
-export default function AdminPanel({ onAllocate, isConnected }) {
+export default function AdminPanel({ onAllocate, onAddCandidates, host, isConnected }) {
   // State for Allocate Votes
   const [addresses, setAddresses] = useState("");
   // State for Add Candidate (使用 textarea 支持批量输入)
@@ -44,6 +44,10 @@ export default function AdminPanel({ onAllocate, isConnected }) {
         <h1 className="text-[32px] leading-[40px] font-normal text-[#1D1B20]">管理功能</h1>
         <p className="text-[#49454F] mt-2">仅主持人可用。管理候选人列表和投票资格。</p>
       </header>
+
+      <div className={STYLES.card}>
+        主持人地址：{host}
+      </div>
 
       {/* 批量新增候选人卡片 */}
       <div className={STYLES.card}>
